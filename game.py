@@ -53,10 +53,12 @@ class Game:
             for lemma in syn.lemmas():
                 if lemma.name() not in synonyms:
                     synonyms.append(lemma.name().lower())
-        synonyms.remove(word)
+        
+        if word in synonyms:
+            synonyms.remove(word)
         print("word:", word)
 
-        most_sim = synonyms[0]
+        most_sim = None
         highest_sim = -100
         for i in synonyms:
             if self.calculate_similarity(i, word) > highest_sim:
@@ -65,17 +67,7 @@ class Game:
         # print("Most_sim", most_sim)
         return most_sim
 
-    def give_clue(self, player):
-        # if player == self.player1:
-        #     available_cards = []
-        #     for card in self.p1_words:
-        #         if card.is_guessed == False:
-        #             available_cards.append(card)
-
-        #     hint_word = self.get_synonyms(random.choice(available_cards).word)
-        #     print("HINT", hint_word)
-            # return "HINT" + hint_word
-            
+    def give_clue(self, player):  
         available_cards = []
         if player == self.player1:
             for card in self.p1_words:
@@ -86,9 +78,10 @@ class Game:
             for card in self.p2_words:
                 if card.is_guessed == False:
                     available_cards.append(card)
-        self.current_word = random.choice(available_cards).word
-        hint_word = self.get_synonyms(self.current_word)
-        print("HINT", hint_word)
+        self.current_word = random.choice(available_cards)
+        print("WORD", self.current_word.word)
+        hint_word = self.get_synonyms(self.current_word.word)
+        print("HINT: ", hint_word)
         # return "Hint:" + hint_word
 
 
@@ -183,6 +176,7 @@ class Game:
         print("")
 
         current_player = self.player1
+        opponent = self.player2
         random.shuffle(self.cards)
         
         # # Main game loop
@@ -196,75 +190,68 @@ class Game:
                     print("\n")
             
             print(current_player.name,"'s turn")
-            # clue = 
+
             self.give_clue(current_player)
-            # print(self.give_clue(current_player))
+
             guess = input("Guess: ")
 
             if guess not in self.all_words:
                 while guess not in self.all_words:
                     print("Please enter a card on the board.")
                     guess = input("Guess: ")
-                    
-                    # print(clue)
-                # if current_player == self.player1:
-                #     current_player = self.player2
-                
-                # else:
-                #     current_player = self.player1
             
             for card in self.cards:
                 if guess == card.word:
-                    # print("YAY")
                     if card.is_guessed == True:
                         print("\nThis card has been guessed already.\n")
                         break
                     
                     elif card == self.assasin_card:
-                        print("GAME OVER")
-                        return
-                    
-                    elif guess == self.current_word:
-                        card.is_guessed = True
-                        card.word = card.word.upper()
-                        current_player.score += 1
-                        print("Nice Job!")
-                        print("Score:", current_player.score)
+                        print("You selected the assasin card...\n")
+                        print("\nGAME OVER\n")
+                        print(current_player.name, "'s Score:", current_player.score)
+                        print(opponent.name, "'s Score:", opponent.score, "\n")
 
-                        if current_player == self.player1:
-                            current_player = self.player2
+                        if current_player.score > opponent.score:
+                            print(current_player.name, "wins!")
                         
                         else:
-                            current_player = self.player1
-                        break
+                            print(opponent.name, "wins!")
+                        
+
+                        return
+                    
+                    if guess == self.current_word:
+                        current_player.score += 1
+                        print("Nice Job!")
 
                     elif card in self.p1_words and current_player == self.player1:
-                        card.is_guessed = True
-                        card.word = card.word.upper()
                         self.player1.score += 1
                         print("That's not the word I was thinking of, but that is one of your words!")
-                        print("Score:", self.player1.score)
-                        current_player = self.player2
-                        break
                     
                     elif card in self.p2_words and current_player == self.player2:
-                        card.is_guessed = True
-                        card.word = card.word.upper()
                         self.player2.score += 1
                         print("That's not the word I was thinking of, but that is one of your words!")
-                        print("Score:", self.player2.score)
-                        current_player = self.player1
-                        break
             
+                    elif card in self.p2_words and current_player == self.player1:
+                        print("You picked your opponent's card...")
+                        self.player2.score += 1
+
+                    elif card in self.p1_words and current_player == self.player2:
+                        print("You picked your opponent's card...")
+                        self.player1.score += 1
+
                     else:
-                        print("\nThat is not the right card, but good guess.\n")
-                        if current_player == self.player1:
-                            current_player = self.player2
+                        print("\nYou picked a nuetral card.\n")
                     
-                        else:
-                            current_player = self.player1
+                    card.is_guessed = True
+                    card.word = card.word.upper()
 
-
+            print(current_player.name, "'s Score:", current_player.score)
+            print(opponent.name, "'s Score:", opponent.score)
+            temp = current_player
+            current_player = opponent
+            opponent = temp
             
                 
 
@@ -291,3 +278,7 @@ if __name__ == "__main__":
         # "data/words.txt")
     contexto_game.run()
 
+
+# Erros:
+# - some hints come out to the actual word
+# - when the user enters the correct word, the computer outputs, "thats not what I was thinking, but it is in your cards" b/c of cards vs. word
