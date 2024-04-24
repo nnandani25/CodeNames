@@ -44,8 +44,6 @@ class Game:
         """
         synonyms = []
         
-        # TODO: Complete this function
-
         # Loop through all the synsets for the word
         for syn in wn.synsets(word):
             # Loop through all lemmas in the synset
@@ -123,6 +121,38 @@ class Game:
         
         return score
     
+    def find_word(self, player):
+        if player == self.player1:
+            pos_words = self.p1_words
+            neg_words = self.p2_words
+        else:
+            pos_words = self.p2_words
+            neg_words = self.p1_words
+        
+        possible_words = set()
+        for word in pos_words:
+            for syn in wn.synsets(word.word):
+                for lemma in syn.lemmas():
+                        possible_words.add(lemma.name().lower())
+        # Removes the pos words from the possible words set
+        possible_words = possible_words.difference([word.word for word in pos_words])
+
+        # Weighitng them
+        # FInds a word similar to yours and oppositve of the other ones
+        def word_score(hint):
+            score = 0
+            for word in pos_words:
+                score += self.calculate_similarity(hint, word)
+
+            for word in neg_words:
+                score -= self.calculate_similarity(hint, word)
+            return score
+        
+        # picks the word with the highest score, using word_score, keeps track
+        return max(possible_words, key=word_score)
+
+
+
 
     def run(self):
         """
@@ -161,7 +191,7 @@ class Game:
                 if count%5 == 0:
                     print("\n")
             
-
+            print(current_player.name,"'s turn")
             self.give_clue(current_player)
             guess = input("Guess: ")
             
@@ -169,30 +199,38 @@ class Game:
                 if guess == card.word:
                     # print("YAY")
                     if card.is_guessed == True:
-                        print("NO")
+                        print("This card has been guessed already.")
                         break
                     
                     elif card == self.assasin_card:
-                        print("DEAD")
-                        break
+                        print("GAME OVER")
+                        return
                     
                     elif card in self.p1_words and current_player == self.player1:
-                        print("YAY")
                         card.is_guessed = True
                         card.word = card.word.upper()
                         self.player1.score += 1
                         current_player = self.player2
+                        print("Nice Job!")
+                        print("Score:", self.player1.score)
                         break
                     
                     elif card in self.p2_words and current_player == self.player2:
-                        print("YAY")
                         card.is_guessed = True
                         card.word = card.word.upper()
                         self.player2.score += 1
                         current_player = self.player1
+                        print("Great!")
+                        print("Score:", self.player2.score)
                         break
             
+                    else:
+                        print("That is not the right card, but good guess.")
 
+            if card not in self.cards:
+                print("Please enter a card on the board.")
+                guess = input("Guess: ")
+                
 
             # # TODO: Complete the options
             # if guess == "h":
