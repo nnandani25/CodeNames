@@ -5,7 +5,7 @@ class Card:
         self.word = word
         self.is_guessed = False
         self.synonyms = []
-
+        self.symbol = None
 
     def get_synonyms(self):
         lst = []
@@ -14,11 +14,7 @@ class Card:
         
         lst = [x for x in lst if x not in self.word and self.word not in x]
         if len(lst) == 0:
-            synset = wn.synsets(self.word)
-            for s in synset:
-                for h in s.hypernyms():
-                    for lemma in h.lemmas():
-                        lst.append(lemma.name().lower())
+            lst = self.get_hypernyms(lst)
 
         # for j in lst:
         #     if j in self.word:
@@ -27,9 +23,30 @@ class Card:
         #     elif self.word in j:
         #         lst.remove(j)
         lst = [x for x in lst if x not in self.word and self.word not in x]
-        
+        self.synonyms = lst
         return lst
 
+    def get_hypernyms(self, lst):
+        synset = wn.synsets(self.word)
+        for s in synset:
+            for h in s.hypernyms():
+                for lemma in h.lemmas():
+                  lst.append(lemma.name().lower())
+        # print("HYPER", lst)
+
+        if len(lst) == 0:
+            lst = self.get_hyponyms(lst)
+
+        return lst
+
+    def get_hyponyms(self, lst):
+        synset = wn.synsets(self.word)
+        for s in synset:
+            for h in s.hyponyms():
+                for lemma in h.lemmas():
+                  lst.append(lemma.name().lower())
+        # print("HYPO", lst)
+        return lst
 
     def get_best_synonym(self):
         syn = self.get_synonyms()
@@ -41,8 +58,8 @@ class Card:
                 highest_sim = self.calculate_similarity(i, self.word)
                 most_sim = i
                 
-        print(syn)
-        print("Word:", self.word)
+        # print(syn)
+        # print("Word:", self.word)
         return most_sim
     
 

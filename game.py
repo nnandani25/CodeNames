@@ -10,8 +10,17 @@ class Game:
         # self.synonyms = self.get_synonyms()
 
         # self.cards = [Card(word) for word in random.sample(self.words,25)]
-        self.all_words = random.sample(self.words,25)
+        good_words = []
+        for word in self.words:
+            card = Card(word)
+            card.get_synonyms()
+            if len(card.synonyms) != 0:
+                good_words.append(word)
+
+        self.all_words = random.sample(good_words,25)
         self.cards = [Card(word) for word in self.all_words]
+        # for card in self.cards:
+        #     print(card.word.upper(), card.get_synonyms(), "\n")
         
         random.shuffle(self.cards)
         self.p1_words = self.cards[0:9]
@@ -38,7 +47,7 @@ class Game:
         return words
     
 
-    def give_clue(self, player):  
+    def give_clue(self, player, opponent):  
         available_cards = []
         if player == self.player1:
             for card in self.p1_words:
@@ -49,9 +58,16 @@ class Game:
             for card in self.p2_words:
                 if card.is_guessed == False:
                     available_cards.append(card)
+        print("Avail:", [x.word for x in available_cards])
+
+        if len(available_cards) == 0:
+            self.checkwin(player, opponent)
+
         self.current_word = random.choice(available_cards)
+
         # print("WORD", self.current_word.word)
         hint_word = self.current_word.get_best_synonym()
+        print(self.current_word.word)
         
 
         # print("HINT: ", hint_word.word)
@@ -127,23 +143,39 @@ class Game:
         print("")
     
     def checkwin(self, current_player, opponent):
+        # winner = False
         if current_player == self.player1:
-            if current_player.score == len(self.p1_words):
+            won = True
+            for card in self.p1_words:
+                if card.is_guessed == False:
+                    won = False
+
+            # if current_player.score == len(self.p1_words):
+            if won == True:
                 print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
                 print(current_player.name, "'s Score:", current_player.score)
                 print(opponent.name, "'s Score:", opponent.score, "\n")
+                return True
                 # return
         else:
             if current_player.score == len(self.p2_words):
-                print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
-                print(current_player.name, "'s Score:", current_player.score)
-                print(opponent.name, "'s Score:", opponent.score, "\n")
-                # return
+                won = True
+                for card in self.p2_words:
+                    if card.is_guessed == False:
+                        won = False
+
+                if won == True:
+                    # winner = True
+                    print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
+                    print(current_player.name, "'s Score:", current_player.score)
+                    print(opponent.name, "'s Score:", opponent.score, "\n")
+                    return True
+                    # return
 
 
         print(current_player.name, "'s Score:", current_player.score)
         print(opponent.name, "'s Score:", opponent.score)
-
+        return False
     def run(self):
         """
         Main game loop. Runs until 
@@ -168,7 +200,7 @@ class Game:
             
             print(current_player.name,"'s turn")
 
-            print("HINT:", self.give_clue(current_player))
+            print("HINT:", self.give_clue(current_player, opponent))
 
             guess = self.guess()
 
@@ -214,7 +246,8 @@ class Game:
                     card.is_guessed = True
                     card.word = card.word.upper()
 
-            self.checkwin(current_player, opponent)
+            if(self.checkwin(current_player, opponent)):
+                break
             temp = current_player
             current_player = opponent
             opponent = temp
@@ -228,3 +261,4 @@ if __name__ == "__main__":
 # Erros:
 # - some hints come out to the actual word or as None
 # - guess again if the card has already been guessed
+# - tie
