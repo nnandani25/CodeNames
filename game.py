@@ -165,7 +165,6 @@ class Game:
                         won = False
 
                 if won == True:
-                    # winner = True
                     print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
                     print(current_player.name, "'s Score:", current_player.score)
                     print(opponent.name, "'s Score:", opponent.score, "\n")
