@@ -64,15 +64,69 @@ class Game:
             self.checkwin(player, opponent)
 
         self.current_word = random.choice(available_cards)
-
-        # print("WORD", self.current_word.word)
-        hint_word = self.current_word.get_best_synonym()
+        sim_words = self.current_word.most_sim_words(available_cards)
+        print("Curr Word", self.current_word.word)
+        print("Sim", [x.word for x in sim_words])
+        if len(sim_words) == 0:
+            hint_word = self.current_word.get_best_synonym()
+        
+        else:
+            self.append(self.current_word)
+            hint_word = self.common_word(sim_words)
+        # self.current_word.get_best_synonym()
         print(self.current_word.word)
         
 
         # print("HINT: ", hint_word.word)
         return hint_word
     
+
+
+    # def most_sim_words(self, word, available_cards):
+    #     sim_cards = []
+
+    #     # for i in len(available_cards -1):
+    #     #     card1 = available_cards[i]
+    #     #     card2 = available_cards[i+1]
+    #     #     score = available_cards[i].calculate_similarity(card1.word, card2.word)
+    #     #     if score > high_score:
+    #     #         best_card1 = card1
+    #     #         best_card2 = card2
+        
+    #     for card in available_cards:
+    #         score = card.calculate_similarity(word, card.word)
+    #         if score >= 0.6 and score < 1:
+    #             sim_cards.append(card)
+    #     print(len(sim_cards))
+    #     return sim_cards
+
+
+    def common_word(self, sim_cards):
+        hypernyms = []
+        # for card in sim_cards:
+        for i in range(len(sim_cards)-1):
+            word1 = sim_cards[i].word
+            word2 = sim_cards[i+1].word
+            print(wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
+            hypernyms.extend(wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
+
+        # if len(hypernyms) > 1:
+        #     word = None
+        #     high_score = 0
+        #     for i in range(len(hypernyms) - 1):
+        #         word1 = hypernyms[i]
+        #         word2 = hypernyms[i+1]
+        #         score = sim_cards[0].calculate_similarity(word1, word2)
+
+        #         if score > high_score:
+        #             high_score = score
+        print("COM", hypernyms)
+        return random.choice(hypernyms)
+
+                
+
+    
+
     def find_word(self, player):
         if player == self.player1:
             pos_words = self.p1_words
@@ -103,6 +157,10 @@ class Game:
         # picks the word with the highest score, using word_score, keeps track
         # return max(possible_words, key=word_score)
         # lowest common hypernym
+
+
+# 2 - if the lists have any of the same hypernyms
+# how to find the lowest common hypernym 
 
 
     def guess(self):

@@ -1,4 +1,5 @@
 from nltk.corpus import wordnet as wn
+import random
 class Card:
     def __init__(self, word):
         self.type = None
@@ -68,3 +69,16 @@ class Card:
         w2 = wn.synsets(guess)[0]
         score = w1.wup_similarity(w2)
         return score
+    
+
+    def most_sim_words(self, available_cards):
+        sim_cards = []
+        for card in available_cards:
+            score = card.calculate_similarity(self.word, card.word)
+            if score >= 0.4 and score < 1:
+                sim_cards.append(card)
+        
+
+        print("Number of cards", len(sim_cards))
+        return sim_cards
+    
