@@ -2,6 +2,7 @@ from nltk.corpus import wordnet as wn
 import random
 from card import Card
 from player import Player
+import re
 class Game:
     def __init__(self, filename):
         # Load the words from file
@@ -46,8 +47,7 @@ class Game:
             words = [line.lower().strip() for line in file.readlines()]
         return words
     
-
-    def give_clue(self, player, opponent):  
+    def get_available_cards(self, player):
         available_cards = []
         if player == self.player1:
             for card in self.p1_words:
@@ -58,23 +58,40 @@ class Game:
             for card in self.p2_words:
                 if card.is_guessed == False:
                     available_cards.append(card)
+        return available_cards
+
+    def give_clue(self, player, opponent):  
+        # available_cards = []
+        # if player == self.player1:
+        #     for card in self.p1_words:
+        #         if card.is_guessed == False:
+        #             available_cards.append(card)
+        
+        # else:
+        #     for card in self.p2_words:
+        #         if card.is_guessed == False:
+        #             available_cards.append(card)
+        available_cards = self.get_available_cards(player)
         # print("Avail:", [x.word for x in available_cards])
 
         if len(available_cards) == 0:
             self.checkwin(player, opponent)
 
         self.current_word = random.choice(available_cards)
-        # sim_words = self.current_word.most_sim_words(available_cards)
-        # print("Curr Word", self.current_word.word)
-        # print("Sim", [x.word for x in sim_words])
-        # if len(sim_words) == 0:
-        #     hint_word = self.current_word.get_best_synonym()
+        # self.find_common_hypernyms(self.current_word, available_cards)
+
+
+        sim_words = self.current_word.most_sim_words(available_cards)
+        print("Curr Word", self.current_word.word)
+        print("Sim", [x.word for x in sim_words])
+        if len(sim_words) == 0:
+            hint_word = self.current_word.get_best_synonym()
         
-        # else:
-        #     sim_words.append(self.current_word)
-        #     hint_word = self.common_word(sim_words)
+        else:
+            sim_words.append(self.current_word)
+            hint_word = self.common_word(sim_words)
         hint_word = self.current_word.get_best_synonym()
-        # print(self.current_word.word)
+        print(self.current_word.word)
         
 
         # print("HINT: ", hint_word.word)
@@ -103,20 +120,33 @@ class Game:
 
     def common_word(self, sim_cards):
         hypernyms = []
-        # for card in sim_cards:
         print(len(sim_cards))
+
+        # synset = wn.synsets(self.current_word)
+        # for s in synset:
+        #     for h in s.hypernyms():
+        #         for lemma in h.lemmas():
+        #           lst.append(lemma.name().lower())
+
+        lst = []
         for i in range(len(sim_cards)-1):
-            word1 = wn.synsets(sim_cards[i].word)[0]
-            word2 = wn.synsets(sim_cards[i+1].word)[0]
-            # word1 = wn.synset("mother")[0]
-            # word2 = wn.synset("daughter")[0]
-        #     w1 = wn.synsets(card)[0]
-        # w2 = wn.synsets(guess)[0]
+            synset = wn.synsets(sim_cards[i].word)[0]
+            synset2 = wn.synsets(sim_cards[i+1].word)[0]
+            print(synset.name(), synset2.name())
+     
+            lst.extend((wn.synset(synset.name()).lowest_common_hypernyms(wn.synset(synset2.name()))))
+                    # for lemma in h.lemmas():
+                    #     lst.append(lemma.name().lower())
+
+
+
             # print("W1",word1)
             # print("W2",word2)
-            lst = (wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
+
+
+            # lst = (wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
             print(lst)
-            hypernyms.extend(wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
+            # hypernyms.extend(wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
 
         # if len(hypernyms) > 1:
         #     word = None
@@ -128,12 +158,33 @@ class Game:
 
         #         if score > high_score:
         #             high_score = score
-        print("COM", hypernyms)
-        return random.choice(hypernyms)
+        print("COM", lst)
+        return random.choice(lst)
 
                 
+    def find_common_hypernyms(card, available_cards):
+        hyp = []
+        lst = []
+        lst2 = []
+        com_words = []
+        hypernym = None
+        # for i in range(len(available_cards)-1):
+        #     hyp.extend(available_cards[i].get_hypernyms(hyp))
+        #     lst.extend(available_cards[i+1].get_hypernyms(hyp))
+        #     if re.findall(hyp, lst) != False:
+        #         com_words.append[available_cards[i]]
+        #         # com_words.append[available_cards[i+1]]
+        # print(com_words)
+        # return
+        lst.extend(card.get_hypernyms(hyp))
+        # self.current_word.get_hypernyms(hyp)
+        for card in available_cards:
+            l = card.get_hypernyms(lst2)
+            if re.findall(l, lst) != False:
+                com_words.append(card.word)
+        print(com_words)
+        return
 
-    
 
     def find_word(self, player):
         if player == self.player1:
