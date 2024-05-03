@@ -58,23 +58,23 @@ class Game:
             for card in self.p2_words:
                 if card.is_guessed == False:
                     available_cards.append(card)
-        print("Avail:", [x.word for x in available_cards])
+        # print("Avail:", [x.word for x in available_cards])
 
         if len(available_cards) == 0:
             self.checkwin(player, opponent)
 
         self.current_word = random.choice(available_cards)
-        sim_words = self.current_word.most_sim_words(available_cards)
-        print("Curr Word", self.current_word.word)
-        print("Sim", [x.word for x in sim_words])
-        if len(sim_words) == 0:
-            hint_word = self.current_word.get_best_synonym()
+        # sim_words = self.current_word.most_sim_words(available_cards)
+        # print("Curr Word", self.current_word.word)
+        # print("Sim", [x.word for x in sim_words])
+        # if len(sim_words) == 0:
+        #     hint_word = self.current_word.get_best_synonym()
         
-        else:
-            self.append(self.current_word)
-            hint_word = self.common_word(sim_words)
-        # self.current_word.get_best_synonym()
-        print(self.current_word.word)
+        # else:
+        #     sim_words.append(self.current_word)
+        #     hint_word = self.common_word(sim_words)
+        hint_word = self.current_word.get_best_synonym()
+        # print(self.current_word.word)
         
 
         # print("HINT: ", hint_word.word)
@@ -104,10 +104,18 @@ class Game:
     def common_word(self, sim_cards):
         hypernyms = []
         # for card in sim_cards:
+        print(len(sim_cards))
         for i in range(len(sim_cards)-1):
-            word1 = sim_cards[i].word
-            word2 = sim_cards[i+1].word
-            print(wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
+            word1 = wn.synsets(sim_cards[i].word)[0]
+            word2 = wn.synsets(sim_cards[i+1].word)[0]
+            # word1 = wn.synset("mother")[0]
+            # word2 = wn.synset("daughter")[0]
+        #     w1 = wn.synsets(card)[0]
+        # w2 = wn.synsets(guess)[0]
+            # print("W1",word1)
+            # print("W2",word2)
+            lst = (wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
+            print(lst)
             hypernyms.extend(wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
 
         # if len(hypernyms) > 1:
@@ -319,3 +327,4 @@ if __name__ == "__main__":
 # - some hints come out to the actual word or as None
 # - guess again if the card has already been guessed
 # - tie
+# - com is empty
