@@ -30,7 +30,7 @@ class Game:
         self.blank_cards = self.cards[19:]
         self.player1 = Player("player1")
         self.player2 = Player("player2")
-        self.current_word = None
+        self.current_words = None
 
 
     def load_words(self, filename):
@@ -61,16 +61,6 @@ class Game:
         return available_cards
 
     def give_clue(self, player, opponent):  
-        # available_cards = []
-        # if player == self.player1:
-        #     for card in self.p1_words:
-        #         if card.is_guessed == False:
-        #             available_cards.append(card)
-        
-        # else:
-        #     for card in self.p2_words:
-        #         if card.is_guessed == False:
-        #             available_cards.append(card)
         available_cards = self.get_available_cards(player)
         # print("Avail:", [x.word for x in available_cards])
 
@@ -90,100 +80,35 @@ class Game:
         else:
             sim_words.append(self.current_word)
             hint_word = self.common_word(sim_words)
-        hint_word = self.current_word.get_best_synonym()
-        print(self.current_word.word)
+
+        # hint_word = self.current_word.get_best_synonym()
+        # print(self.current_word.word)
         
 
         # print("HINT: ", hint_word.word)
         return hint_word
     
 
-
-    # def most_sim_words(self, word, available_cards):
-    #     sim_cards = []
-
-    #     # for i in len(available_cards -1):
-    #     #     card1 = available_cards[i]
-    #     #     card2 = available_cards[i+1]
-    #     #     score = available_cards[i].calculate_similarity(card1.word, card2.word)
-    #     #     if score > high_score:
-    #     #         best_card1 = card1
-    #     #         best_card2 = card2
-        
-    #     for card in available_cards:
-    #         score = card.calculate_similarity(word, card.word)
-    #         if score >= 0.6 and score < 1:
-    #             sim_cards.append(card)
-    #     print(len(sim_cards))
-    #     return sim_cards
-
-
     def common_word(self, sim_cards):
-        hypernyms = []
         print(len(sim_cards))
-
-        # synset = wn.synsets(self.current_word)
-        # for s in synset:
-        #     for h in s.hypernyms():
-        #         for lemma in h.lemmas():
-        #           lst.append(lemma.name().lower())
 
         lst = []
         for i in range(len(sim_cards)-1):
             synset = wn.synsets(sim_cards[i].word)[0]
             synset2 = wn.synsets(sim_cards[i+1].word)[0]
-            print(synset.name(), synset2.name())
+            # print(synset.name(), synset2.name())
      
             lst.extend((wn.synset(synset.name()).lowest_common_hypernyms(wn.synset(synset2.name()))))
-                    # for lemma in h.lemmas():
-                    #     lst.append(lemma.name().lower())
+
+    
+        print("COMS", lst)
+        hint = (random.choice(lst)).name()
+        pos = hint.find('.')
+        x = slice(0, pos)
 
 
+        return hint[x]
 
-            # print("W1",word1)
-            # print("W2",word2)
-
-
-            # lst = (wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
-            print(lst)
-            # hypernyms.extend(wn.synset(word1).lowest_common_hypernyms(wn.synset(word2)))
-
-        # if len(hypernyms) > 1:
-        #     word = None
-        #     high_score = 0
-        #     for i in range(len(hypernyms) - 1):
-        #         word1 = hypernyms[i]
-        #         word2 = hypernyms[i+1]
-        #         score = sim_cards[0].calculate_similarity(word1, word2)
-
-        #         if score > high_score:
-        #             high_score = score
-        print("COM", lst)
-        return random.choice(lst)
-
-                
-    def find_common_hypernyms(card, available_cards):
-        hyp = []
-        lst = []
-        lst2 = []
-        com_words = []
-        hypernym = None
-        # for i in range(len(available_cards)-1):
-        #     hyp.extend(available_cards[i].get_hypernyms(hyp))
-        #     lst.extend(available_cards[i+1].get_hypernyms(hyp))
-        #     if re.findall(hyp, lst) != False:
-        #         com_words.append[available_cards[i]]
-        #         # com_words.append[available_cards[i+1]]
-        # print(com_words)
-        # return
-        lst.extend(card.get_hypernyms(hyp))
-        # self.current_word.get_hypernyms(hyp)
-        for card in available_cards:
-            l = card.get_hypernyms(lst2)
-            if re.findall(l, lst) != False:
-                com_words.append(card.word)
-        print(com_words)
-        return
 
 
     def find_word(self, player):
@@ -202,24 +127,6 @@ class Game:
         # Removes the pos words from the possible words set
         possible_words = possible_words.difference([word.word for word in pos_words])
 
-        # Weighitng them
-        # FInds a word similar to yours and oppositve of the other ones
-    # def word_score(hint):
-    #     score = 0
-    #     for word in pos_words:
-    #         score += self.calculate_similarity(hint, word)
-
-    #     for word in neg_words:
-    #         score -= self.calculate_similarity(hint, word)
-    #     return score
-        
-        # picks the word with the highest score, using word_score, keeps track
-        # return max(possible_words, key=word_score)
-        # lowest common hypernym
-
-
-# 2 - if the lists have any of the same hypernyms
-# how to find the lowest common hypernym 
 
 
     def guess(self):
