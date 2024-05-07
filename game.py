@@ -7,10 +7,6 @@ class Game:
     def __init__(self, filename):
         # Load the words from file
         self.words = self.load_words(filename)
-
-        # self.synonyms = self.get_synonyms()
-
-        # self.cards = [Card(word) for word in random.sample(self.words,25)]
         good_words = []
         for word in self.words:
             card = Card(word)
@@ -20,8 +16,6 @@ class Game:
 
         self.all_words = random.sample(good_words,25)
         self.cards = [Card(word) for word in self.all_words]
-        # for card in self.cards:
-        #     print(card.word.upper(), card.get_synonyms(), "\n")
         
         random.shuffle(self.cards)
         self.p1_words = self.cards[0:9]
@@ -30,8 +24,19 @@ class Game:
         self.blank_cards = self.cards[19:]
         self.player1 = Player("player1")
         self.player2 = Player("player2")
-        self.current_words = None
+        self.current_word = None
+        self.curr_words = []
 
+        for card in self.p1_words:
+            card.type = 1
+        
+        for card in self.p2_words:
+            card.type = 2
+
+        for card in self.blank_cards:
+            card.type = 3
+        
+        self.assasin_card.type = 4
 
     def load_words(self, filename):
         """
@@ -76,9 +81,11 @@ class Game:
         print("Sim", [x.word for x in sim_words])
         if len(sim_words) == 0:
             hint_word = self.current_word.get_best_synonym()
+            sim_words.append(hint_word)
         
         else:
             sim_words.append(self.current_word)
+            self.curr_words.extend(sim_words)
             hint_word = self.common_word(sim_words)
 
         # hint_word = self.current_word.get_best_synonym()
@@ -86,7 +93,7 @@ class Game:
         
 
         # print("HINT: ", hint_word.word)
-        return hint_word
+        return hint_word, len(sim_words)
     
 
     def common_word(self, sim_cards):
@@ -146,7 +153,8 @@ class Game:
                         print("\nThis card has been guessed already.\n")
                         is_valid = False
                         break
-        return guess
+
+        return self.find_card(guess)
 
     def print_intstructions(self):
         # Instructions
@@ -167,38 +175,77 @@ class Game:
         print("")
     
     def checkwin(self, current_player, opponent):
-        # winner = False
-        if current_player == self.player1:
-            won = True
-            for card in self.p1_words:
-                if card.is_guessed == False:
-                    won = False
-
-            # if current_player.score == len(self.p1_words):
-            if won == True:
-                print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
-                print(current_player.name, "'s Score:", current_player.score)
-                print(opponent.name, "'s Score:", opponent.score, "\n")
-                return True
-                # return
+        
+        if self.assasin_card.is_guessed:
+            return opponent
+        
+        if current_player.score > opponent.score:
+            return current_player
+        
         else:
-            if current_player.score == len(self.p2_words):
-                won = True
-                for card in self.p2_words:
-                    if card.is_guessed == False:
-                        won = False
+            return opponent
+        
+        # winner = False
+        # if current_player == self.player1:
+        #     won = True
+        #     for card in self.p1_words:
+        #         if card.is_guessed == False:
+        #             won = False
 
-                if won == True:
-                    print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
-                    print(current_player.name, "'s Score:", current_player.score)
-                    print(opponent.name, "'s Score:", opponent.score, "\n")
-                    return True
-                    # return
+        #     # if current_player.score == len(self.p1_words):
+        #     if won == True:
+        #         print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
+        #         print(current_player.name, "'s Score:", current_player.score)
+        #         print(opponent.name, "'s Score:", opponent.score, "\n")
+        #         return True
+        #         # return
+        # else:
+        #     if current_player.score == len(self.p2_words):
+        #         won = True
+        #         for card in self.p2_words:
+        #             if card.is_guessed == False:
+        #                 won = False
+
+        #         if won == True:
+        #             print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
+        #             print(current_player.name, "'s Score:", current_player.score)
+        #             print(opponent.name, "'s Score:", opponent.score, "\n")
+        #             return True
+        #             # return
 
 
-        print(current_player.name, "'s Score:", current_player.score)
-        print(opponent.name, "'s Score:", opponent.score)
+        # print(current_player.name, "'s Score:", current_player.score)
+        # print(opponent.name, "'s Score:", opponent.score)
+        # return False
+    
+    def is_game_over(self):
+        if self.assasin_card.is_guessed == True:
+            return True
+        
+        if self.player1.score == len(self.p1_words):
+            return True
+        
+        if self.player2.score == len(self.p2_words):
+            return True
+    
         return False
+
+    def find_card(self, guess):
+        player_card = None
+        for card in self.cards:
+            if guess == card.word:
+                player_card = card
+        
+        return player_card
+
+    def display_board(self):
+        count = 0
+        for i in self.cards:
+            print(f'{i.word:20}', end='')
+            count+=1                
+            if count%5 == 0:
+                print("\n")
+
     def run(self):
         """
         Main game loop. Runs until 
@@ -207,74 +254,59 @@ class Game:
         """
         self.print_intstructions()
         current_player = self.player1
+        current_player.type = 1
         opponent = self.player2
+        opponent.type = 2
         random.shuffle(self.cards)
+    
         
         # # Main game loop
         while True:
-            # print(self.cards)
-            count = 0
-            for i in self.cards:
-                # print(i.word, end="\t\t")
-                print(f'{i.word:20}', end='')
-                count+=1
-                if count%5 == 0:
-                    print("\n")
+            self.display_board()
             
             print(current_player.name,"'s turn")
+            clue, num_words = self.give_clue(current_player, opponent)
+            print("HINT:", clue)
+            print("Num", num_words)
 
-            print("HINT:", self.give_clue(current_player, opponent))
+            while num_words > 0:
+                guess = self.guess()
+                guess.is_guessed = True
+                guess.word = guess.word.upper()
 
-            guess = self.guess()
+                if guess.type == 4:
+                    print("You selected the assasin card...\n")
+                    break
 
-            for card in self.cards:
-                if guess.lower() == card.word.lower():
-                    if card == self.assasin_card:
-                        print("You selected the assasin card...\n")
-                        print("\nGAME OVER\n")
-                        print(current_player.name, "'s Score:", current_player.score)
-                        print(opponent.name, "'s Score:", opponent.score, "\n")
+                elif guess.type == current_player.type:
+                    current_player.score += 1
+                    print("Nice Job!")
+                    num_words -= 1
+            
+                elif guess.type == opponent.type:
+                    print("You picked your opponent's card...")
+                    opponent.score += 1
+                    break
 
-                        if current_player.score > opponent.score:
-                            print(current_player.name, "wins!")
+                else:
+                    print("\nYou picked a nuetral card.\n")
+                    break
                         
-                        else:
-                            print(opponent.name, "wins!")
-                        return
-                    
-                    if guess == self.current_word.word:
-                        current_player.score += 1
-                        print("Nice Job!")
-
-                    else:
-                        if card in self.p1_words and current_player == self.player1:
-                            self.player1.score += 1
-                            print("That's not the word I was thinking of, but that is one of your words!")
-                        
-                        elif card in self.p2_words and current_player == self.player2:
-                            self.player2.score += 1
-                            print("That's not the word I was thinking of, but that is one of your words!")
-                
-                        elif card in self.p2_words and current_player == self.player1:
-                            print("You picked your opponent's card...")
-                            self.player2.score += 1
-
-                        elif card in self.p1_words and current_player == self.player2:
-                            print("You picked your opponent's card...")
-                            self.player1.score += 1
-
-                        else:
-                            print("\nYou picked a nuetral card.\n")
-                    
-                    card.is_guessed = True
-                    card.word = card.word.upper()
-
-            if(self.checkwin(current_player, opponent)):
+            print(current_player.name, "Score:", current_player.score)
+            print(opponent.name, "Score:", opponent.score)
+            if self.is_game_over():
                 break
             temp = current_player
             current_player = opponent
             opponent = temp
-            
+
+
+        winner = self.checkwin(current_player, opponent)
+        print(winner.name, "WINS!!")
+
+
+
+
 
 if __name__ == "__main__":
     contexto_game = Game("/Users/navyan21/Desktop/School 2023-2024/ATCS/Labs/Unit07/IntroToNLP/data/words.txt")
@@ -282,7 +314,6 @@ if __name__ == "__main__":
 
 
 # Erros:
-# - some hints come out to the actual word or as None
-# - guess again if the card has already been guessed
 # - tie
-# - com is empty
+# - number of guesses if they get it right for coms
+# - hints are not with the same words for coms 

@@ -3,6 +3,7 @@ class Player:
         self.name = input("Name:")
         self.score = 0
         self.status = status
+        self.type = 0
     
     def take_turn():
         pass
