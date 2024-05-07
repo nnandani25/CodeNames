@@ -139,18 +139,18 @@ class Game:
     def guess(self):
         is_valid = False
         while not is_valid:
-            guess = input("Guess: ")
+            guess = input("\nGuess: ")
             is_valid = True
 
             if guess not in self.all_words:
-                    print("Please enter a card on the board.")
+                    print("\nPlease enter a card on the board.")
                     is_valid = False
                     continue
 
             for card in self.cards:
                 if guess.lower() == card.word.lower():
                     if card.is_guessed:
-                        print("\nThis card has been guessed already.\n")
+                        print("\nThis card has been guessed already.")
                         is_valid = False
                         break
 
@@ -239,8 +239,16 @@ class Game:
         # print("\nDeath: ", self.assasin_card.word)
         # print("")
 
-        print("Rules:")
-        print("1. \n")
+        print("\n\nHow to play:\n")
+        print("As the computer, I have selected certain cards for each player and you have to guess which card"
+               " is yours based on a hint \nthat I give you, but one card is the assasin card and if you guess that you will die")
+        print("\nI will try to group the cards together under one hint and if I do that, I will tell you the amount of cards you can guess")
+        print("\nGuesses:")
+        print("1. if you guess the correct card, your score increases and it is the next players turn")
+        print("2. if you guess the correct card and the hint was for multiple cards you can guess again")
+        print("3. if you guess your opponents card, your opponent gets a point")
+        print("4.if you guess a nuetral card, no one gets a point")
+        print("5. if you guess the assasin card, the game ends\n")
 
     def run(self):
         """
@@ -276,25 +284,26 @@ class Game:
                 guess.word = guess.word.upper()
 
                 if guess.type == 4:
-                    print("You selected the assasin card...\n")
+                    print("\nYou selected the assasin card...\n")
                     break
 
                 elif guess.type == current_player.type:
                     current_player.score += 1
-                    print("Nice Job!")
+                    print("\nNice Job!")
                     num_words -= 1
             
                 elif guess.type == opponent.type:
-                    print("You picked your opponent's card...")
+                    print("\nYou picked your opponent's card...")
                     opponent.score += 1
                     break
 
                 else:
-                    print("\nYou picked a nuetral card.\n")
+                    print("\nYou picked a nuetral card.")
                     break
-                        
-            print(current_player.name, "Score:", current_player.score)
-            print(opponent.name, "Score:", opponent.score)
+
+            print("\n")  
+            print(current_player.name.upper(), "Score:", current_player.score)
+            print(opponent.name, "Score:", opponent.score, "\n")
             if self.is_game_over():
                 break
             temp = current_player
