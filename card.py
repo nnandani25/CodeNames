@@ -75,11 +75,11 @@ class Card:
         sim_cards = []
         for card in available_cards:
             score = card.calculate_similarity(self.word, card.word)
-            
+
             if score >= 0.45 and score < 1:
                 sim_cards.append(card)
         
 
-        print("Number of cards", len(sim_cards))
+        # print("Number of cards", len(sim_cards))
         return sim_cards
     

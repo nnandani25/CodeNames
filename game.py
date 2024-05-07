@@ -77,8 +77,8 @@ class Game:
 
 
         sim_words = self.current_word.most_sim_words(available_cards)
-        print("Curr Word", self.current_word.word)
-        print("Sim", [x.word for x in sim_words])
+        # print("Curr Word", self.current_word.word)
+        # print("Sim", [x.word for x in sim_words])
         if len(sim_words) == 0:
             hint_word = self.current_word.get_best_synonym()
             sim_words.append(hint_word)
@@ -97,7 +97,7 @@ class Game:
     
 
     def common_word(self, sim_cards):
-        print(len(sim_cards))
+        # print(len(sim_cards))
 
         lst = []
         for i in range(len(sim_cards)-1):
@@ -108,7 +108,7 @@ class Game:
             lst.extend((wn.synset(synset.name()).lowest_common_hypernyms(wn.synset(synset2.name()))))
 
     
-        print("COMS", lst)
+        # print("COMS", lst)
         hint = (random.choice(lst)).name()
         pos = hint.find('.')
         x = slice(0, pos)
@@ -156,23 +156,7 @@ class Game:
 
         return self.find_card(guess)
 
-    def print_intstructions(self):
-        # Instructions
-        print("\nWelcome to Contexto!")
-        print("Blank:", end =" ")
-        for blank in self.blank_cards:
-            print(blank.word, end=" ")
 
-        print("\nPlayer 1:", end=" ")
-        for p1c in self.p1_words:
-            print(p1c.word, end=" ")
-
-        print("\nPlayer 2:", end=" ")
-        for p2c in self.p2_words:
-            print(p2c.word, end = " ")
-
-        print("\nDeath: ", self.assasin_card.word)
-        print("")
     
     def checkwin(self, current_player, opponent):
         
@@ -185,38 +169,6 @@ class Game:
         else:
             return opponent
         
-        # winner = False
-        # if current_player == self.player1:
-        #     won = True
-        #     for card in self.p1_words:
-        #         if card.is_guessed == False:
-        #             won = False
-
-        #     # if current_player.score == len(self.p1_words):
-        #     if won == True:
-        #         print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
-        #         print(current_player.name, "'s Score:", current_player.score)
-        #         print(opponent.name, "'s Score:", opponent.score, "\n")
-        #         return True
-        #         # return
-        # else:
-        #     if current_player.score == len(self.p2_words):
-        #         won = True
-        #         for card in self.p2_words:
-        #             if card.is_guessed == False:
-        #                 won = False
-
-        #         if won == True:
-        #             print("\n", current_player.name.upper(), "UNCOVERED ALL OF THEIR CARDS\n")
-        #             print(current_player.name, "'s Score:", current_player.score)
-        #             print(opponent.name, "'s Score:", opponent.score, "\n")
-        #             return True
-        #             # return
-
-
-        # print(current_player.name, "'s Score:", current_player.score)
-        # print(opponent.name, "'s Score:", opponent.score)
-        # return False
     
     def is_game_over(self):
         if self.assasin_card.is_guessed == True:
@@ -240,11 +192,55 @@ class Game:
 
     def display_board(self):
         count = 0
+        print("┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐\n")
+
         for i in self.cards:
-            print(f'{i.word:20}', end='')
-            count+=1                
-            if count%5 == 0:
-                print("\n")
+                # len = 0
+                # while len < 5:
+                #     print("┌─────────┐", end='')
+                #     print("                  ", end='')
+                #     len+=1
+
+                print(f'│     {i.word:10}        ', end='')
+
+                # print("│",i.word, "         |         ", end='')
+
+
+                # print("│", end='')
+
+                # print("+---------------+")
+                # print("|               |")
+                # print("|",i.word,           "|")
+                # print("|               |")
+                # print("+---------------+", end='')
+                count+=1                
+                if count%5 == 0:
+                    print("│", end='')
+                    print("\n")
+        
+        print("└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n")
+
+
+    def print_intstructions(self):
+        # Instructions
+        print("\nWelcome to Code Names!")
+        # print("Blank:", end =" ")
+        # for blank in self.blank_cards:
+        #     print(blank.word, end=" ")
+
+        # print("\nPlayer 1:", end=" ")
+        # for p1c in self.p1_words:
+        #     print(p1c.word, end=" ")
+
+        # print("\nPlayer 2:", end=" ")
+        # for p2c in self.p2_words:
+        #     print(p2c.word, end = " ")
+
+        # print("\nDeath: ", self.assasin_card.word)
+        # print("")
+
+        print("Rules:")
+        print("1. \n")
 
     def run(self):
         """
@@ -253,6 +249,10 @@ class Game:
         word correctly
         """
         self.print_intstructions()
+        self.player1.name = input(("Player 1 Name: "))
+        self.player2.name = input(("Player 2 Name: "))
+        print("")
+
         current_player = self.player1
         current_player.type = 1
         opponent = self.player2
@@ -264,10 +264,11 @@ class Game:
         while True:
             self.display_board()
             
-            print(current_player.name,"'s turn")
+            print(current_player.name.strip().upper(),"'s TURN")
+            print("──────────────────────────")
             clue, num_words = self.give_clue(current_player, opponent)
-            print("HINT:", clue)
-            print("Num", num_words)
+            print("Hint:", clue)
+            print("Number of Cards:", num_words)
 
             while num_words > 0:
                 guess = self.guess()

@@ -1,6 +1,6 @@
 class Player:
     def __init__(self, status):
-        self.name = input("Name:")
+        self.name = ""
         self.score = 0
         self.status = status
         self.type = 0
