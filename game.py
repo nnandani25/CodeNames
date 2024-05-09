@@ -11,6 +11,7 @@ class Game:
         # Ensures that the words have synonyms
         for word in self.words:
             card = Card(word)
+
             card.get_synonyms()
             if len(card.synonyms) != 0:
                 good_words.append(word)
@@ -212,7 +213,7 @@ class Game:
         self.current_player.color = "blue"
         self.opponent = self.player2
         self.opponent.type = 2
-        self.opponent. color = "green"
+        self.opponent. color = "red"
         random.shuffle(self.cards)
     
     def change_turn(self):
